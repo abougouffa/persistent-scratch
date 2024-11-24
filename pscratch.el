@@ -230,12 +230,10 @@ When DELETE-ALL (\\[universal-argument]) is non-nil, delete all persistent scrat
 This requires Emacs 29+."
   :global t
   (if pscratch-mode
-      (progn
-        (if (>= emacs-major-version 29)
-            (progn
-              (advice-add 'scratch-buffer :override #'pscratch-buffer)
-              (advice-add 'get-scratch-buffer-create :override #'pscratch-get-buffer))
-          (user-error "The `pscratch-mode' requires Emacs 29 or higher. You have Emacs v%s" emacs-version)))
+      (if (< emacs-major-version 29)
+          (setq pscratch-mode nil) ; Don't enable
+        (advice-add 'scratch-buffer :override #'pscratch-buffer)
+        (advice-add 'get-scratch-buffer-create :override #'pscratch-get-buffer))
     (advice-remove 'scratch-buffer #'pscratch-buffer)
     (advice-remove 'get-scratch-buffer-create #'pscratch-get-buffer)))
 
