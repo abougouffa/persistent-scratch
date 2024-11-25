@@ -45,6 +45,12 @@ the first, fresh scratch buffer you create. This accepts:
   :type '(choice (const t) (const nil) symbol)
   :group 'pscratch)
 
+(defcustom pscratch-initial-message initial-scratch-message
+  "The hooks to run after a scratch buffer is created."
+  :type '(choice (text :tag "Message")
+          (const :tag "none" nil))
+  :group 'pscratch)
+
 (defcustom pscratch-dir (locate-user-emacs-file "pscratch/")
   "Where to save persistent scratch buffers."
   :type 'directory
@@ -59,7 +65,6 @@ the first, fresh scratch buffer you create. This accepts:
   "The hooks to run after a scratch buffer is created."
   :type '(repeat function)
   :group 'pscratch)
-
 
 ;;; Helpers
 
@@ -103,16 +108,20 @@ persistent buffer dedicated to PROJ-NAME when provided.
 
 When provided, set the `default-directory' to DIRECTORY."
   (let* ((buff-name (if proj-name (format "*pscratch:%s*" proj-name) "*pscratch*"))
-         (pscratch-buff (get-buffer buff-name)))
+         (pscratch-buff (get-buffer buff-name))
+         (insert-initial dont-restore-p))
     (with-current-buffer (or pscratch-buff (get-buffer-create buff-name))
       (setq-local default-directory (or directory default-directory)
                   so-long--inhibited t)
       (if dont-restore-p
           (erase-buffer)
         (unless pscratch-buff
-          (pscratch-restore proj-name)
+          (setq insert-initial (not (pscratch-restore proj-name)))
           (when (and (eq major-mode 'fundamental-mode) (functionp mode))
             (funcall mode))))
+      (when (and insert-initial pscratch-initial-message)
+        (goto-char (point))
+        (insert (substitute-command-keys initial-scratch-message)))
       (cl-pushnew (current-buffer) pscratch--buffers)
       (add-hook 'kill-buffer-hook #'pscratch-persist-buffer nil 'local)
       (run-hooks 'pscratch-buffer-created-hook)
