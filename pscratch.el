@@ -240,12 +240,18 @@ When DELETE-ALL (\\[universal-argument]) is non-nil, delete all persistent scrat
 This requires Emacs 29+."
   :global t
   (if pscratch-mode
-      (if (< emacs-major-version 29)
-          (setq pscratch-mode nil) ; Don't enable
-        (advice-add 'scratch-buffer :override #'pscratch-buffer)
-        (advice-add 'get-scratch-buffer-create :override #'pscratch-get-buffer))
-    (advice-remove 'scratch-buffer #'pscratch-buffer)
-    (advice-remove 'get-scratch-buffer-create #'pscratch-get-buffer)))
+      (progn
+        (if (< emacs-major-version 29)
+            (setq pscratch-mode nil) ; Don't enable
+          (advice-add 'scratch-buffer :override #'pscratch-buffer))
+        ;; Replace the open *scratch* buffer, if any, with the *pscratch* buffer
+        (let ((curr-buf (current-buffer))
+              (scratch-buf (get-buffer "*scratch*")))
+          (when scratch-buf
+            (pscratch-buffer nil nil t)
+            (kill-buffer scratch-buf))
+          (when (buffer-live-p curr-buf) (switch-to-buffer curr-buf))))
+    (advice-remove 'scratch-buffer #'pscratch-buffer)))
 
 
 (provide 'pscratch)
