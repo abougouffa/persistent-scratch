@@ -6,7 +6,7 @@
 ;; Maintainer: Abdelhak Bougouffa (rot13 "nobhtbhssn@srqbencebwrpg.bet")
 ;; Created: Decembre 2, 2022
 ;; Modified: November 24, 2024
-;; Version: 0.0.1
+;; Version: 0.1.0
 ;; Keywords: convenience files
 ;; Homepage: https://github.com/abougouffa/persistent-scratch
 ;; Package-Requires: ((emacs "28.1"))
