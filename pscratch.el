@@ -249,7 +249,12 @@ This requires Emacs 29+."
               (scratch-buf (get-buffer "*scratch*")))
           (when scratch-buf
             (pscratch-buffer nil nil t)
-            (kill-buffer scratch-buf))
+            (with-current-buffer scratch-buf
+              ;; Delete the buffer when it is empty or contains the initial message
+              (when (or (zerop (buffer-size))
+                        (equal (substitute-command-keys initial-scratch-message)
+                               (buffer-substring-no-properties (point-min) (point-max))))
+                (kill-buffer scratch-buf))))
           (when (buffer-live-p curr-buf) (switch-to-buffer curr-buf))))
     (advice-remove 'scratch-buffer #'pscratch-buffer)))
 
