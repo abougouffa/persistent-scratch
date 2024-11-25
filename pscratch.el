@@ -121,7 +121,7 @@ When provided, set the `default-directory' to DIRECTORY."
             (funcall mode))))
       (when (and insert-initial pscratch-initial-message)
         (goto-char (point))
-        (insert (substitute-command-keys initial-scratch-message)))
+        (insert (substitute-command-keys pscratch-initial-message)))
       (cl-pushnew (current-buffer) pscratch--buffers)
       (add-hook 'kill-buffer-hook #'pscratch-persist-buffer nil 'local)
       (run-hooks 'pscratch-buffer-created-hook)
@@ -169,14 +169,15 @@ current project.
 When SAME-WINDOW is non-nil, open in the current window."
   (interactive)
   (let ((discard (or discard
-                     (when current-prefix-arg
-                       (y-or-n-p "Discard the previously saved content if any?"))))
+                     (and current-prefix-arg
+                          (y-or-n-p "Discard the previously saved content if any?"))))
         (project (or project
-                     (when current-prefix-arg
-                       (project-current nil (project-prompt-project-dir "Create a persistent scratch for the project")))))
+                     (and current-prefix-arg
+                          (y-or-n-p "Create a project-specific scratch?")
+                          (project-current nil (project-prompt-project-dir "Create a persistent scratch for the project")))))
         (same-window (or same-window
-                         (when current-prefix-arg
-                           (y-or-n-p "Open in the same window?")))))
+                         (and current-prefix-arg
+                              (y-or-n-p "Open in the same window?")))))
     (funcall
      (if same-window #'switch-to-buffer #'pop-to-buffer)
      (pscratch-get-buffer
