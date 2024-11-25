@@ -100,20 +100,20 @@ the first, fresh scratch buffer you create. This accepts:
         (goto-char point)
         t))))
 
-(defun pscratch-get-buffer (&optional dont-restore-p mode directory proj-name)
+(defun pscratch-get-buffer (&optional discard mode directory proj-name)
   "Return a scratchpad buffer in major MODE.
 
-When DONT-RESTORE-P, do not load the previously saved persistent buffer. Load
+When DISCARD, do not load the previously saved persistent buffer. Load
 persistent buffer dedicated to PROJ-NAME when provided.
 
 When provided, set the `default-directory' to DIRECTORY."
   (let* ((buff-name (if proj-name (format "*pscratch:%s*" proj-name) "*pscratch*"))
          (pscratch-buff (get-buffer buff-name))
-         (insert-initial dont-restore-p))
+         (insert-initial discard))
     (with-current-buffer (or pscratch-buff (get-buffer-create buff-name))
       (setq-local default-directory (or directory default-directory)
                   so-long--inhibited t)
-      (if dont-restore-p
+      (if discard
           (erase-buffer)
         (unless pscratch-buff
           (setq insert-initial (not (pscratch-restore proj-name)))
