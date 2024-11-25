@@ -171,7 +171,7 @@ When SAME-WINDOW is non-nil, open in the current window."
   (let ((discard (or discard
                      (and current-prefix-arg
                           (y-or-n-p "Discard the previously saved content if any?"))))
-        (project (or project
+        (project (or (and project (project-current))
                      (and current-prefix-arg
                           (y-or-n-p "Create a project-specific scratch?")
                           (project-current nil (project-prompt-project-dir "Create a persistent scratch for the project")))))
