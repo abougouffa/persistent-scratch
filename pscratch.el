@@ -1,6 +1,6 @@
 ;;; pscratch.el --- Persistent per-project scratch buffers -*- lexical-binding: t; -*-
 ;;
-;; Copyright (C) 2024 Abdelhak Bougouffa
+;; Copyright (C) 2024-2025 Abdelhak Bougouffa
 ;;
 ;; Author: Abdelhak Bougouffa (rot13 "nobhtbhssn@srqbencebwrpg.bet")
 ;; Maintainer: Abdelhak Bougouffa (rot13 "nobhtbhssn@srqbencebwrpg.bet")
@@ -48,7 +48,7 @@ the first, fresh scratch buffer you create. This accepts:
 (defcustom pscratch-initial-message initial-scratch-message
   "The hooks to run after a scratch buffer is created."
   :type '(choice (text :tag "Message")
-          (const :tag "none" nil))
+                 (const :tag "none" nil))
   :group 'pscratch)
 
 (defcustom pscratch-dir (locate-user-emacs-file "pscratch/")
@@ -95,7 +95,7 @@ the first, fresh scratch buffer you create. This accepts:
             (save-excursion (insert-file-contents scratch-file))
             (read (current-buffer)))
         (erase-buffer)
-        (funcall mode)
+        (funcall (or (and (fboundp mode) mode) pscratch-initial-major-mode 'fundamental-mode))
         (insert content)
         (goto-char point)
         t))))
